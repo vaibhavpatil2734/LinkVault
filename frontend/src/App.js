@@ -1,13 +1,12 @@
 import React from 'react';
 import FileUpload from './components/FileUpload';
-import FileDownload from './components/FileDownload';
+import Navbar from './components/Navbar';
 
 const App = () => {
     return (
         <div className="container">
-            <h1>File Sharing App</h1>
+            <Navbar/>
             <FileUpload />
-            <FileDownload />
         </div>
     );
 };

@@ -1,0 +1,58 @@
+/* Navbar styling for dark theme */
+.navbar {
+    background: #1f1f1f; /* Dark background */
+    padding: 10px 20px;
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #00c3ff; /* Glowing effect */
+  }
+  
+  .navbar-logo h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .navbar-icon {
+    font-size: 1.8rem;
+  }
+  
+  .navbar-links a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 1rem;
+    transition: color 0.3s;
+  }
+  
+  .navbar-links a:hover {
+    color: #00c3ff; /* Hover effect */
+  }
+  
+  @media (max-width: 768px) {
+    .navbar-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .navbar-links a {
+      margin: 5px 0;
+    }
+  }
+  

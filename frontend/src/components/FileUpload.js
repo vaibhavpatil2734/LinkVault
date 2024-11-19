@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './FileUpload.css'; // Custom CSS file for styling
+import './FileUpload.css';
 
 const FileUpload = () => {
     const [file, setFile] = useState(null);
     const [message, setMessage] = useState('');
     const [fileId, setFileId] = useState('');
     const [fileUrl, setFileUrl] = useState('');
+    const [downloadFileId, setDownloadFileId] = useState('');
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -44,28 +45,81 @@ const FileUpload = () => {
         });
     };
 
+    const handleDownload = async () => {
+        if (!downloadFileId) {
+            setMessage('Please enter a file ID');
+            return;
+        }
+
+        try {
+            const response = await axios.get(`http://localhost:5000/api/files/${downloadFileId}`, {
+                responseType: 'blob',
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `file_${downloadFileId}`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            setMessage('File downloaded successfully!');
+        } catch (error) {
+            setMessage('Error downloading file');
+            console.error(error);
+        }
+    };
+
     return (
         <div className="upload-container">
-            <h1>File Upload</h1>
-            <div className="file-upload">
+            <h1 className="title">File Operations</h1>
+
+            {/* File Upload Box */}
+            <div className="operation-box">
+                <h2>File Upload</h2>
                 <input type="file" onChange={handleFileChange} />
-                <button onClick={handleUpload}>Upload</button>
+                <button className="upload-btn" onClick={handleUpload}>
+                    Upload
+                </button>
             </div>
-            {message && <p className="message">{message}</p>}
+
+            {/* File Information Box */}
             {fileId && (
-                <div className="file-info">
-                    <div className="url-box">
+                <div className="operation-box">
+                    <h2>File Information</h2>
+                    <div className="info-row">
                         <p>File ID:</p>
-                        <span>{fileId}</span>
-                        <button onClick={() => handleCopy(fileId)}>Copy ID</button>
+                        <span className="info-text">{fileId}</span>
+                        <button className="copy-btn" onClick={() => handleCopy(fileId)}>
+                            Copy ID
+                        </button>
                     </div>
-                    <div className="url-box">
+                    <div className="info-row">
                         <p>File URL:</p>
-                        <span>{fileUrl}</span>
-                        <button onClick={() => handleCopy(fileUrl)}>Copy URL</button>
+                        <span className="info-text">{fileUrl}</span>
+                        <button className="copy-btn" onClick={() => handleCopy(fileUrl)}>
+                            Copy URL
+                        </button>
                     </div>
                 </div>
             )}
+
+            {/* File Download Box */}
+            <div className="operation-box">
+                <h2>Download File</h2>
+                <input
+                    type="text"
+                    placeholder="Enter file ID"
+                    value={downloadFileId}
+                    onChange={(e) => setDownloadFileId(e.target.value)}
+                />
+                <button className="download-btn" onClick={handleDownload}>
+                    Download
+                </button>
+            </div>
+
+            {message && <p className="message">{message}</p>}
         </div>
     );
 };
