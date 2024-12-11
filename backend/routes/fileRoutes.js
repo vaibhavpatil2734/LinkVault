@@ -5,35 +5,42 @@ const { uploadFile, downloadFile } = require('../controllers/fileController');
 
 const router = express.Router();
 
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Define the folder where files will be stored
+        cb(null, 'uploads/'); 
     },
     filename: (req, file, cb) => {
-        // Ensure the file extension is preserved
-        const ext = path.extname(file.originalname); // Get the file extension (e.g., .png, .jpg)
-        cb(null, `${Date.now()}${ext}`); // Save the file with its original extension
+       
+        const ext = path.extname(file.originalname); 
+        cb(null, `${Date.now()}${ext}`); 
     },
 });
 
-// Initialize Multer with storage configuration, file filter, and size limit
+
+const allowedMimeTypes = [
+    'image/png', 'image/jpeg', 'image/jpg',      
+    'application/pdf',                          
+    'application/msword',                     
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  
+    'text/plain',                            
+    'application/zip',                         
+    'application/json'                        
+];
+
+
 const upload = multer({ 
     storage,
     fileFilter: (req, file, cb) => {
-        // Specify allowed MIME types (PNG, JPEG, JPG)
-        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-        if (!allowedTypes.includes(file.mimetype)) {
-            // If file type is not allowed, reject it
-            return cb(new Error('Invalid file type. Only PNG, JPEG, JPG are allowed.'));
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+            return cb(new Error('Invalid file type. Only PNG, JPEG, PDF, DOC, TXT, ZIP, and more are allowed.'));
         }
-        // Proceed if file type is allowed
         cb(null, true);
     },
-    limits: { fileSize: 50 * 1024 * 1024 },  // Limit file size to 50 MB
-}).single('file');  // Expecting a file field named 'file' in the form data
+    limits: { fileSize: 100 * 1024 * 1024 }  
+}).single('file');  
 
-// Routes
-router.post('/upload', upload, uploadFile);  // Handle file upload
-router.get('/:id', downloadFile);  // Handle file download by ID
+router.post('/upload', upload, uploadFile);  
+router.get('/:id', downloadFile);  
 
 module.exports = router;

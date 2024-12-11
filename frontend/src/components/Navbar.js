@@ -10,11 +10,6 @@ export default function Navbar() {
           <FaLock className="navbar-icon" />
           <h1>LinkVault</h1>
         </div>
-        <div className="navbar-links">
-          <a href="#upload">Upload</a>
-          <a href="#download">Download</a>
-          <a href="#about">About</a>
-        </div>
       </div>
     </nav>
   );

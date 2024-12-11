@@ -162,3 +162,12 @@ html, body {
         font-size: 0.8rem;
     }
 }
+.info-text {
+    word-break: break-all;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    display: inline-block;
+    text-align: center;
+    margin: 0 10px;
+}

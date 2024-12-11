@@ -89,13 +89,6 @@ const FileUpload = () => {
                 <div className="operation-box">
                     <h2>File Information</h2>
                     <div className="info-row">
-                        <p>File ID:</p>
-                        <span className="info-text">{fileId}</span>
-                        <button className="copy-btn" onClick={() => handleCopy(fileId)}>
-                            Copy ID
-                        </button>
-                    </div>
-                    <div className="info-row">
                         <p>File URL:</p>
                         <span className="info-text">{fileUrl}</span>
                         <button className="copy-btn" onClick={() => handleCopy(fileUrl)}>
@@ -104,20 +97,6 @@ const FileUpload = () => {
                     </div>
                 </div>
             )}
-
-            {/* File Download Box */}
-            <div className="operation-box">
-                <h2>Download File</h2>
-                <input
-                    type="text"
-                    placeholder="Enter file ID"
-                    value={downloadFileId}
-                    onChange={(e) => setDownloadFileId(e.target.value)}
-                />
-                <button className="download-btn" onClick={handleDownload}>
-                    Download
-                </button>
-            </div>
 
             {message && <p className="message">{message}</p>}
         </div>
