@@ -19,7 +19,7 @@ app.use(express.json());
 // Configure CORS to allow specific origins
 const allowedOrigins = [
     'https://linkvault-35mf.onrender.com',
-    'http://localhost:5000',
+    'http://localhost:3000',
 ];
 
 app.use(cors({
