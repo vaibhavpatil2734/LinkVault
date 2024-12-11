@@ -31,7 +31,7 @@ app.use(cors({
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true, // Allow cookies or auth headers if needed
+    credentials: true, 
 }));
 
 // Serve static files from the 'uploads' directory
