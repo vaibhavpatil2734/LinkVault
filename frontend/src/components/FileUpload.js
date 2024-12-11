@@ -52,7 +52,7 @@ const FileUpload = () => {
         }
 
         try {
-            const response = await axios.get(`http://localhost:5000/api/files/${downloadFileId}`, {
+            const response = await axios.get(`https://linkvault-35mf.onrender.com/api/files/${downloadFileId}`, {
                 responseType: 'blob',
             });
 
