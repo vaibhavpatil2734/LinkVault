@@ -22,12 +22,12 @@ const FileUpload = () => {
         formData.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:5000/api/files/upload', formData, {
+            const response = await axios.post('https://linkvault-35mf.onrender.com/api/files/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
             const uploadedFileId = response.data.fileId;
-            const generatedUrl = `http://localhost:5000/api/files/${uploadedFileId}`;
+            const generatedUrl = `https://linkvault-35mf.onrender.com/api/files/${uploadedFileId}`;
 
             setFileId(uploadedFileId);
             setFileUrl(generatedUrl);
