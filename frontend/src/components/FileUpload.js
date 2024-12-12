@@ -7,7 +7,6 @@ const FileUpload = () => {
     const [message, setMessage] = useState('');
     const [fileId, setFileId] = useState('');
     const [fileUrl, setFileUrl] = useState('');
-    const [downloadFileId, setDownloadFileId] = useState('');
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -43,32 +42,6 @@ const FileUpload = () => {
         navigator.clipboard.writeText(text).then(() => {
             setMessage('Copied to clipboard!');
         });
-    };
-
-    const handleDownload = async () => {
-        if (!downloadFileId) {
-            setMessage('Please enter a file ID');
-            return;
-        }
-
-        try {
-            const response = await axios.get(`https://linkvault-35mf.onrender.com/api/files/${downloadFileId}`, {
-                responseType: 'blob',
-            });
-
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `file_${downloadFileId}`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-
-            setMessage('File downloaded successfully!');
-        } catch (error) {
-            setMessage('Error downloading file');
-            console.error(error);
-        }
     };
 
     return (
