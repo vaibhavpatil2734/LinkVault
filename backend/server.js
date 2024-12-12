@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Configure CORS to allow specific origins
 const allowedOrigins = [
-    'https://linkvault-35mf.onrender.com',
+    'https://linkvault1.netlify.app',
     'http://localhost:3000',
 ];
 
