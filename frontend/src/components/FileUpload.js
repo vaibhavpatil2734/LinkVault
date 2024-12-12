@@ -83,7 +83,7 @@ const FileUpload = () => {
 
             {/* File Upload Box */}
             <div className="operation-box">
-                <h2>Step 1: Upload Your File</h2>
+                <h2>Upload Your File</h2>
                 <input type="file" onChange={handleFileChange} />
                 <button className="upload-btn" onClick={handleUpload}>
                     Upload File
@@ -94,6 +94,7 @@ const FileUpload = () => {
             {fileCode && (
                 <div className="operation-box">
                     <h2>Generated File Code</h2>
+                    <h3>Use this 4-digit code to verify and download your file.</h3>
                     <p>Code: {fileCode}</p>
                     <button className="copy-btn" onClick={() => navigator.clipboard.writeText(fileCode)}>
                         Copy Code
@@ -104,6 +105,7 @@ const FileUpload = () => {
             {/* File Download Box */}
             <div className="operation-box">
                 <h2>Download File</h2>
+                <h3>Enter the 4-digit code to securely access your file.</h3>
                 <input
                     type="text"
                     placeholder="Enter code to download"
