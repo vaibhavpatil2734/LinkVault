@@ -1,6 +1,17 @@
 const File = require('../models/fileModel');
 const path = require('path');
 
+// Helper function to generate a unique 4-digit code
+const generateUniqueCode = async () => {
+    let code;
+    let exists = true;
+    while (exists) {
+        code = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit code
+        exists = await File.exists({ code }); // Check for uniqueness
+    }
+    return code;
+};
+
 // Handle file upload
 const uploadFile = async (req, res) => {
     try {
@@ -11,10 +22,13 @@ const uploadFile = async (req, res) => {
 
         console.log('Uploading file:', req.file);
 
+        const uniqueCode = await generateUniqueCode();
+
         const file = new File({
             filename: req.file.originalname,
             path: req.file.path,
             size: req.file.size,
+            code: uniqueCode, // Save the generated code
         });
 
         await file.save();
@@ -22,7 +36,7 @@ const uploadFile = async (req, res) => {
 
         res.status(201).json({
             message: 'File uploaded successfully',
-            fileId: file._id,
+            code: uniqueCode, // Return the code to the client
         });
     } catch (error) {
         console.log('Error during file upload:', error);
@@ -30,62 +44,56 @@ const uploadFile = async (req, res) => {
     }
 };
 
-// Download file
+// Handle file download
 const downloadFile = async (req, res) => {
     try {
-        // Find the file in the database
-        const file = await File.findById(req.params.id);
+        // Find the file in the database by code
+        const file = await File.findOne({ code: req.params.code });
         if (!file) {
-            console.log('File not found in database');
             return res.status(404).json({ message: 'File not found' });
         }
 
-        console.log('File found:', file);
+        const filePath = path.resolve(file.path); // Absolute path to the file
+        const fileExtension = path.extname(file.filename); // Get the file extension
+        const mimeType = getMimeType(fileExtension); // Resolve MIME type based on extension
 
-        const filePath = path.resolve(file.path);
-        console.log('Resolved file path:', filePath);
+        // Log the MIME type in the terminal
+        console.log(`Preparing download for file: ${file.filename}, MIME type: ${mimeType}`);
 
-        const fileExtension = path.extname(file.filename).toLowerCase();
-        console.log('File extension:', fileExtension);
-
-        // Set the MIME type based on the file extension
-        let mimeType;
-        switch (fileExtension) {
-            case '.png':
-                mimeType = 'image/png';
-                break;
-            case '.jpg':
-            case '.jpeg':
-                mimeType = 'image/jpeg';
-                break;
-            case '.gif':
-                mimeType = 'image/gif';
-                break;
-            case '.pdf':
-                mimeType = 'application/pdf';
-                break;
-            default:
-                mimeType = 'application/octet-stream'; // Fallback for unknown file types
-        }
-
-        console.log('MIME type set to:', mimeType);
-
-        // Set the appropriate headers for the download
-        res.setHeader('Content-Type', mimeType);
+        // Set headers for file download
         res.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+        res.setHeader('Content-Type', mimeType);
 
-        // Send the file as a download using sendFile instead of download
+        // Serve the file
         res.sendFile(filePath, (err) => {
             if (err) {
-                console.log('Error during file download:', err);
-                return res.status(500).json({ message: err.message });
+                console.error('Error sending file:', err);
+                res.status(500).json({ message: 'Error sending file' });
             }
-            console.log('File download started successfully');
         });
     } catch (error) {
-        console.log('Error in downloadFile:', error);
+        console.error('Error in downloadFile:', error);
         res.status(500).json({ message: error.message });
     }
+};
+
+// Helper function to get MIME type based on file extension
+const getMimeType = (extension) => {
+    const mimeTypes = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.pdf': 'application/pdf',
+        '.txt': 'text/plain',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.zip': 'application/zip',
+        '.mp4': 'video/mp4',
+        '.mp3': 'audio/mpeg',
+        // Add other extensions as needed
+    };
+
+    return mimeTypes[extension.toLowerCase()] || 'application/octet-stream';
 };
 
 module.exports = { uploadFile, downloadFile };

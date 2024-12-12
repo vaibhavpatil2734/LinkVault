@@ -5,8 +5,8 @@ import './FileUpload.css';
 const FileUpload = () => {
     const [file, setFile] = useState(null);
     const [message, setMessage] = useState('');
-    const [fileId, setFileId] = useState('');
-    const [fileUrl, setFileUrl] = useState('');
+    const [fileCode, setFileCode] = useState('');
+    const [downloadCode, setDownloadCode] = useState(''); // New state for download code
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -26,11 +26,9 @@ const FileUpload = () => {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
-            const uploadedFileId = response.data.fileId;
-            const generatedUrl = `https://linkvault-35mf.onrender.com/api/files/${uploadedFileId}`;
+            const uploadedFileCode = response.data.code;
 
-            setFileId(uploadedFileId);
-            setFileUrl(generatedUrl);
+            setFileCode(uploadedFileCode);
             setMessage('File uploaded successfully!');
         } catch (error) {
             setMessage('Error uploading file');
@@ -38,38 +36,84 @@ const FileUpload = () => {
         }
     };
 
-    const handleCopy = (text) => {
-        navigator.clipboard.writeText(text).then(() => {
-            setMessage('Copied to clipboard!');
-        });
+    const handleDownload = async () => {
+        if (!downloadCode) {
+            setMessage('Please enter a download code');
+            return;
+        }
+    
+        try {
+            const response = await fetch(`https://linkvault-35mf.onrender.com/api/files/download/${downloadCode}`, {
+                method: 'GET',
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to download file');
+            }
+    
+            const blob = await response.blob(); // Convert response to a Blob
+            const contentDisposition = response.headers.get('Content-Disposition');
+            const filename = contentDisposition
+                ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+                : 'downloaded-file';
+    
+            // Create a download link and trigger it
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+    
+            // Clean up
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading file:', error);
+            setMessage('Error downloading file');
+        }
     };
+    
+    
+    
 
     return (
         <div className="upload-container">
-            <h1 className="title">File Operations</h1>
+            <h1 className="title">Secure File Sharing</h1>
 
             {/* File Upload Box */}
             <div className="operation-box">
-                <h2>File Upload</h2>
+                <h2>Step 1: Upload Your File</h2>
                 <input type="file" onChange={handleFileChange} />
                 <button className="upload-btn" onClick={handleUpload}>
-                    Upload
+                    Upload File
                 </button>
             </div>
 
-            {/* File Information Box */}
-            {fileId && (
+            {/* File Code Box */}
+            {fileCode && (
                 <div className="operation-box">
-                    <h2>File Information</h2>
-                    <div className="info-row">
-                        <p>File URL:</p>
-                        <span className="info-text">{fileUrl}</span>
-                        <button className="copy-btn" onClick={() => handleCopy(fileUrl)}>
-                            Copy URL
-                        </button>
-                    </div>
+                    <h2>Generated File Code</h2>
+                    <p>Code: {fileCode}</p>
+                    <button className="copy-btn" onClick={() => navigator.clipboard.writeText(fileCode)}>
+                        Copy Code
+                    </button>
                 </div>
             )}
+
+            {/* File Download Box */}
+            <div className="operation-box">
+                <h2>Download File</h2>
+                <input
+                    type="text"
+                    placeholder="Enter code to download"
+                    value={downloadCode}
+                    onChange={(e) => setDownloadCode(e.target.value)} // Update downloadCode state
+                />
+                <button className="download-btn" onClick={handleDownload}>
+                    Download File
+                </button>
+            </div>
 
             {message && <p className="message">{message}</p>}
         </div>
