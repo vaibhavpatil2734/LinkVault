@@ -1,19 +1,17 @@
 const express = require('express');
 const multer = require('multer');
+const multerS3 = require('multer-s3');
+const aws = require('aws-sdk');
 const path = require('path');
 const { uploadFile, downloadFile } = require('../controllers/fileController');
 
 const router = express.Router();
 
-// Configure multer for file storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Directory to store uploaded files
-    },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname); // Get file extension
-        cb(null, `${Date.now()}${ext}`); // Use timestamp as the filename
-    },
+// Configure AWS SDK
+const s3 = new aws.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION
 });
 
 // Allowed MIME types for uploaded files
@@ -27,16 +25,26 @@ const allowedMimeTypes = [
     'application/json'
 ];
 
-// Configure multer middleware
-const upload = multer({ 
-    storage,
+// Configure Multer to use S3 storage
+const upload = multer({
+    storage: multerS3({
+        s3,
+        bucket: process.env.AWS_BUCKET_NAME,
+        metadata: (req, file, cb) => {
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: (req, file, cb) => {
+            const ext = path.extname(file.originalname);
+            cb(null, `${Date.now()}${ext}`); // Store file with timestamp
+        }
+    }),
     fileFilter: (req, file, cb) => {
         if (!allowedMimeTypes.includes(file.mimetype)) {
-            return cb(new Error('Invalid file type. Only PNG, JPEG, PDF, DOC, TXT, ZIP, and more are allowed.'));
+            return cb(new Error('Invalid file type.'));
         }
         cb(null, true);
     },
-    limits: { fileSize: 100 * 1024 * 1024 }  // Limit file size to 100MB
+    limits: { fileSize: 100 * 1024 * 1024 } // Limit file size to 100MB
 }).single('file');
 
 // Route for uploading files
